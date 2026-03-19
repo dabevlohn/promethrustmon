@@ -1,6 +1,14 @@
-use axum::{routing::get, Router};
+use axum::{
+    extract::Request,
+    middleware::{from_fn, Next},
+    response::Response,
+    routing::get,
+    Router,
+};
 use lazy_static::lazy_static;
-use prometheus::{gather, register_int_gauge, Encoder, IntGauge, TextEncoder};
+use prometheus::{
+    gather, register_int_counter, register_int_gauge, Encoder, IntCounter, IntGauge, TextEncoder,
+};
 use tokio::runtime::Handle;
 use tokio::time::{sleep, Duration};
 
@@ -9,6 +17,8 @@ lazy_static! {
         register_int_gauge!("tokio_workers", "Number of tokio alive tasks").unwrap();
     static ref THREADS_COUNTER: IntGauge =
         register_int_gauge!("tokio_threads", "Number of tokio threads").unwrap();
+    static ref REQUESTS_COUNTER: IntCounter =
+        register_int_counter!("api_requests", "API Requests Total").unwrap();
 }
 
 //#[tokio::main]
@@ -18,7 +28,8 @@ async fn main() {
         .route("/", get(|| async { "OK" }))
         .route("/spawn-thread", get(spawn_thread))
         .route("/prometheus-metrics", get(prometheus_metrics))
-        .route("/plain-metrics", get(plain_metrics));
+        .route("/plain-metrics", get(plain_metrics))
+        .layer(from_fn(middlewr));
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:9090").await.unwrap();
     axum::serve(listener, app).await.unwrap();
@@ -55,6 +66,12 @@ async fn plain_metrics() -> String {
         handle.metrics().num_workers()
     );
     m.to_string()
+}
+
+async fn middlewr(request: Request, next: Next) -> Response {
+    REQUESTS_COUNTER.inc();
+    let response = next.run(request).await;
+    response
 }
 
 fn factorial_iter(n: u64) -> u64 {
