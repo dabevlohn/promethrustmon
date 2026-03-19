@@ -31,7 +31,7 @@ async fn main() {
         .route("/plain-metrics", get(plain_metrics))
         .layer(from_fn(middlewr));
 
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:9090").await.unwrap();
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:9091").await.unwrap();
     axum::serve(listener, app).await.unwrap();
 }
 
