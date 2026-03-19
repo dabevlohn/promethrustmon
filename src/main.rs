@@ -27,7 +27,7 @@ async fn main() {
     let app = Router::new()
         .route("/", get(|| async { "OK" }))
         .route("/spawn-thread", get(spawn_thread))
-        .route("/prometheus-metrics", get(prometheus_metrics))
+        .route("/metrics", get(prometheus_metrics))
         .route("/plain-metrics", get(plain_metrics))
         .layer(from_fn(middlewr));
 

@@ -1,12 +1,16 @@
 alias t := gettext
 alias s := spawn
 alias p := plot
-purl := 'http://localhost:9091/prometheus-metrics'
+alias r := start_prometheus
+purl := 'http://localhost:9091/metrics'
 surl := 'http://localhost:9091/spawn-thread'
 
 # All recipes
 dummy:
 	just -l
+
+start_prometheus:
+    podman run -d -p 9090:9090 -v ./prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus
 
 # Get HEAD requests text
 gettext:
