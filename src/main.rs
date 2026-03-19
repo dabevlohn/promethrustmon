@@ -11,7 +11,8 @@ lazy_static! {
         register_int_gauge!("tokio_threads", "Number of tokio threads").unwrap();
 }
 
-#[tokio::main]
+//#[tokio::main]
+#[tokio::main(worker_threads = 9)]
 async fn main() {
     let app = Router::new()
         .route("/", get(|| async { "OK" }))
