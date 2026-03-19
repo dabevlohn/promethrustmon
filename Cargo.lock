@@ -99,6 +99,7 @@ name = "for-metrics"
 version = "0.1.0"
 dependencies = [
  "axum",
+ "lazy_static",
  "prometheus",
  "tokio",
 ]
