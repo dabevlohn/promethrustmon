@@ -25,5 +25,6 @@ spawn:
 wrk:
     wrk -t16 -c100 -d60s '{{purl}}'
 
+# View picks in terminal
 plot:
 	while true; do curl -s "{{purl}}" | grep ^tokio_workers | awk '{print $2}'; sleep 1; done | ttyplot -t "Tokio Metrics" -u Workers -m 10 -e ^ -M 1 -E _
